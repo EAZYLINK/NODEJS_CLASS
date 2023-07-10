@@ -5,7 +5,7 @@ const PI = 3.14159265359;
 
 n = 5;
 
-console.log(n == 5)
+console.log(n == 5) //true
 
 
 
