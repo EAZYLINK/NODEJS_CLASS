@@ -8,5 +8,4 @@
 //     return a + b
 // }
 
-// export const add = (a, b) => a + b
-export const n = 42
+exports.add = (a, b) => a + b

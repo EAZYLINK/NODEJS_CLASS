@@ -1,5 +1,4 @@
 // const add = require('./module.js')
+const { add } = require('./module.js')
 
-// const  n  = require('./module.js')
-
-// console.log(n)
+console.log(add(1, 2))
