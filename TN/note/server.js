@@ -20,7 +20,7 @@ const server = createServer((req, res) => {
     parsedUrl = new URL(url, `http://${headers.host}`);
     path = parsedUrl.pathname.replace(/^\/+|\/+$/g, '');
     query = parsedUrl.searchParams;
-    console.log(`Path: ${path}, Method: ${method}, Query: ${query}`);
+    console.log(`url: ${parsedUrl} Query: ${query}`);
     switch(method) {
         case 'POST':
             switch(path) {
@@ -30,22 +30,24 @@ const server = createServer((req, res) => {
                 case 'note':
                     createNote(req, res);
                     break;
-            }
+            };
+            break;
         case 'GET':
             switch(path) {
                 case 'account':
+                    if (query==''){
                     getAccount(req, res);
-                    break;
-                case 'account/:email':
+                } else
                     getAccountByEmail(req, res, query);
                     break;
                 case 'note':
+                    if (query==''){
                      getNote(req, res);
-                    break;
-                case 'note/:id':
+                    } else
                     getNoteById(req, res, query);
                     break;
-        }
+        };
+        break;
         case 'PUT':
             switch(path){
                 case 'account':
@@ -54,17 +56,18 @@ const server = createServer((req, res) => {
                 case 'note':
                     updateNoteById(req, res);
                     break;
-            }
+            };
+        break;
         case 'DELETE':
             switch(path){
-                case 'account/:email&:password':
+                case 'account':
                     deleteAccount(req, res, query);
                     break;
-                case 'note/:id':
+                case 'note':
                     deleteNoteById(req, res, query);
                     break;
-    }
-    
+        };
+        break;
     }
 });
 
