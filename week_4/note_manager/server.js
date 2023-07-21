@@ -1,30 +1,62 @@
 const {createServer} = require('http');
 
-const {createAccount, getAccounts} = require('./account');
+const {createAccount, getAccounts, getAccountByEmail, editAccount, deleteAccount} = require('./account');
+const {createNote, getNotes, getNoteById, editNote, deleteNoteById} = require('./note');
 
 const server = createServer((req, res) => {
     url = req.url;
     method = req.method;
     headers = req.headers;
     parsedUrl = new URL(url, `http://${headers.host}`);
-    pathname = parsedUrl.pathname;
+    path = parsedUrl.pathname.replace(/^\/+|\/+$/g, '');
     query = parsedUrl.searchParams;
-switch (pathname) {
-    case '/':
-        res.writeHead(200, {'Content-Type': 'application/json'});
-        return res.end(JSON.stringify({message: 'Welcome to the Note Manager API'}));
-    case '/account':
-        if (method === 'POST') {
-            createAccount(req, res);
-        }
-        else if (method === 'GET') {
-            getAccounts(req, res);
-        }
-        else {
-            res.writeHead(404, {'Content-Type': 'application/json'});
-            return res.end(JSON.stringify({message: 'Not Found'}));
-        }
-}
+ switch(method) {
+    case 'POST':
+        switch(path) {
+            case 'account':
+                createAccount(req, res);
+                break;
+            case 'note':
+                createNote(req, res);
+                break;
+        };
+        break;
+    case 'GET':
+        switch(path) {
+            case 'account':
+                if (query =='') {
+                    getAccounts(req, res);
+                } else
+                    getAccountByEmail(req, res, query)
+                break;
+            case 'note':
+                if (query =='') {
+                    getNotes(req, res);
+                } else
+                    getNoteById(req, res, query)
+                break;
+        };
+        break;
+        case 'PUT':
+            switch(path) {
+                case 'account':
+                    editAccount(req, res);
+                    break;
+                case 'note':
+                    editNote(req, res);
+                    break;
+            };
+            break;
+        case 'DELETE':
+            switch(path) {
+                case 'account':
+                    deleteAccount(req, res, query);
+                    break;
+                case 'note':
+                    deleteNoteById(req, res, query);
+            };
+            break;
+ }
 });
 
 port = 3000;
