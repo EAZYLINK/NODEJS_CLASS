@@ -1,9 +1,9 @@
 const fs = require('fs');
 const cuid = require('cuid');
 
-exports.createAccount = (req, res) => {
-const {lastName, firstName, email, password} = req.body;
-
+exports.createAccount = async(req, res) => {
+    try {
+        const {lastName, firstName, email, password} = req.body;
         const account = {
             userId: cuid(),
             firstName: firstName,
@@ -16,67 +16,61 @@ const {lastName, firstName, email, password} = req.body;
         if (!firstName || !lastName || !email || !password) {
             res.status(400).json({message: 'Please provide all fields'})
         }
-        fs.readFile('accounts.json', 'utf8', (err, acc) => {
-            if (err) {
-                res.status(500).json({message: 'Internal Server Error'})
-            }
+       const acc = await fs.readFileSync('accounts.json', 'utf8');
         const parsedAccount = JSON.parse(acc.toString());
             parsedAccount.push(account);
-            fs.writeFile('accounts.json', JSON.stringify(parsedAccount), err => {
-                if (err) {
-                    res.status(500).json({message: 'Internal Server Error'})
-                }
-                res.status(201).json({
+        await fs.writeFileSync('accounts.json', JSON.stringify(parsedAccount));
+            res.status(201).json({
                     message: 'Account created successfully',
                     account
-            })
-        })
+            }) 
+    } catch (error) {
+        res.status(500).json({message: error.message})
+    }
+}
+ 
+
+exports.getAccounts = async(req, res) => {
+try {
+    const acc = await fs.readFileSync('accounts.json', 'utf8');
+    res.status(200).json({
+        message: 'Accounts retrieved successfully',
+        accounts: JSON.parse(acc.toString())
 })
+} catch (error) {
+    res.status(500).json({message: error.message})
+}
 }
 
-exports.getAccounts = (req, res) => {
-    fs.readFile('accounts.json', 'utf8', (err, acc) => {
-        if (err) {
-            res.status(500).json({message: 'Internal Server Error'})
-        }
-        res.status(200).json({
-            message: 'Accounts retrieved successfully',
-            accounts: JSON.parse(acc.toString())
-    })
-})
-}
-
-exports.getAccountById = (req, res, id) => {
-    id = req.params.id;
+exports.getAccountById = async(req, res, id) => {
+    try {
+        id = req.params.id;
     if (!id) {
         res.status(400).json({message: 'Please provide the User ID'})
     }
-    fs.readFile('accounts.json', 'utf8', (err, acc)=>{
-        if (err) {
-            res.status(500).json({message: 'Internal Server Error'})
-        }
+    const acc = await fs.readFileSync('accounts.json', 'utf8')
         parsedAccount = JSON.parse(acc.toString())
         const findAccount = parsedAccount.find((account) => account.userId === id)
         if (!findAccount) {
             res.status(404).json({message: 'Account not found'})
         }
-            res.status(200).json({
-                message: 'Account retrieved successfully',
-                account: findAccount
-    })
-})
+        res.status(200).json({
+            message: 'Account retrieved successfully',
+            account: findAccount
+        })
+    } catch (error) {
+        res.status(500).json({message: error.message})
+    } 
 }
 
-exports.editAccount = (req, res)=>{
-    console.log(req.body.firstName)
+exports.editAccount = async(req, res)=>{
+    try {
+        console.log(req.body.firstName)
     const {userId} = req.body;
     if (!userId) {
         res.status(400).json({message: 'Please provide the User ID'})
     }
-    fs.readFile('accounts.json', 'utf8', (err, acc)=>{
-        if (err) {
-            res.status(500).json({message: 'Internal Server Error'})
-        }
+    const acc = await fs.readFileSync('accounts.json', 'utf8')
         parsedAccount = JSON.parse(acc.toString())
         if (!parsedAccount) {
             res.status(404).json({message: 'Account not found'}) 
@@ -92,27 +86,23 @@ exports.editAccount = (req, res)=>{
         req.body.password !== undefined? findAccount.password = req.body.password: findAccount.password = findAccount.password
         findAccount.updatedAt = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
         filteredAccount.push(findAccount)
-        fs.writeFile('accounts.json', JSON.stringify(filteredAccount), err => {
-            if (err) {
-                res.status(500).json({message: 'Internal Server Error'})
-            }
+        await fs.writeFileSync('accounts.json', JSON.stringify(filteredAccount))
             res.status(201).json({
                 message: 'Account updated successfully',
                 account: findAccount
             })
-        })
-    })
+    } catch (error) {
+        res.status(500).json({message: error.message})
+    }
 }
 
-exports.deleteAccount = (req, res, id)=>{
-    id = req.params.id;
+exports.deleteAccount = async(req, res, id)=>{
+    try {
+        id = req.params.id;
     if (!id) {
         res.status(400).json({message: 'Please provide the User ID'})
     }
-    fs.readFile('accounts.json', 'utf8', (err, acc)=>{
-        if (err) {
-            res.status(500).json({message: 'Internal Server Error'})
-        }
+    const acc = await fs.readFileSync('accounts.json', 'utf8')
         parsedAccount = JSON.parse(acc.toString())
         if (!parsedAccount) {
             res.status(404).json({message: 'Account not found'})
@@ -122,13 +112,11 @@ exports.deleteAccount = (req, res, id)=>{
             res.status(404).json({message: 'Account not found'})
         }
         const filteredAccount = parsedAccount.filter((account)=> account.userId !== id)
-        fs.writeFile('accounts.json', JSON.stringify(filteredAccount), err => {
-            if (err) {
-                res.status(500).json({message: 'Internal Server Error'})
-            }
+       await fs.writeFileSync('accounts.json', JSON.stringify(filteredAccount));
             res.status(201).json({
                 message: 'Account deleted successfully'
         })
-    })
-})
+    } catch (error) {
+        res.status(500).json({message: error.message})
+    }
 }
