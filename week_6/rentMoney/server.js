@@ -1,6 +1,7 @@
 import Express  from "express";
 import {connectDb} from "./config/connectDb.js";
-import { accountRoute } from "./route/accountRoute.js";
+import { accountRouter } from "./route/accountRoute.js";
+import { rentRouter } from "./route/rentMoneyRoute.js";
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -16,7 +17,8 @@ app.get('/', (req, res)=>{
     })
 })
 
-app.use('/account', accountRoute)
+app.use('/account', accountRouter)
+app.use('/rent', rentRouter)
 
 app.listen(PORT, async() => {
     await connectDb(URL)

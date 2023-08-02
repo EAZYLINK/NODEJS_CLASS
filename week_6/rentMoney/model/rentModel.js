@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose"
 
 
 const rentSchema = new Schema({
-    accountNumber: {
+    amount: {
         type: Number,
         required: true,
     },
@@ -18,6 +18,10 @@ const rentSchema = new Schema({
     accountId: {
         type: Schema.Types.ObjectId,
         ref: 'account',
+        required: true
+    },
+    Total : {
+        type: Number,
         required: true
     }
 }, {timestamps: true})
